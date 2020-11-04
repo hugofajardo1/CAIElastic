@@ -22,6 +22,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 
 import org.springframework.stereotype.Repository;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
 @Repository
 public class AccidentRepository implements IAccidentRepository {
 
-    @Autowired
+    @Inject
     private final ElasticsearchRestTemplate elasticsearchTemplate;
 
     public AccidentRepository(ElasticsearchRestTemplate elasticsearchTemplate) {
@@ -95,9 +96,7 @@ public class AccidentRepository implements IAccidentRepository {
         SearchHits<Accident> searchHits = elasticsearchTemplate.search(searchQuery, Accident.class, IndexCoordinates.of("accidentes"));
         ParsedStringTerms aBucketResult = (ParsedStringTerms) searchHits.getAggregations().asMap().get("Dangerous");
         List<Punto> result = new ArrayList<>();
-        aBucketResult.getBuckets().forEach(aBucket -> {
-            result.add(new Punto(aBucket.getKey().toString(), (int) aBucket.getDocCount()));
-        });
+        aBucketResult.getBuckets().forEach(aBucket -> result.add(new Punto(aBucket.getKey().toString(), (int) aBucket.getDocCount())));
         return result;
     }
 }
